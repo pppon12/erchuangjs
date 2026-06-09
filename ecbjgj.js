@@ -1,7 +1,7 @@
     // ==UserScript==
     // @name         二创便捷工具（榕江）
     // @namespace    http://tampermonkey.net/
-    // @version      1.1
+    // @version      6.6.8
     // @description  打包上传+图片剪辑+格式化信息 多合一 | 支持在线升级
     // @author       卫炜
     // @match        https://www.kdocs.cn/*
@@ -1983,27 +1983,50 @@
                 GM_xmlhttpRequest({
                     method: 'GET',
                     url: rawUrl,
-                    timeout: 10000,
+                    timeout: 15000,
+                    responseType: 'text',
                     headers: {
-                        'Accept': 'text/plain'
+                        'Accept': 'text/plain',
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
                     },
                     onload: function(response) {
                         checkUpdateBtn.innerHTML = '🔄';
                         checkUpdateBtn.disabled = false;
                         
                         if (response.status === 200) {
-                            const match = response.responseText.match(/@version\s+(\d+\.\d+\.\d+)/);
-                            if (match) {
-                                const latestVersion = match[1];
+                            const content = response.responseText || response.response;
+                            
+                            if (!content) {
+                                notify('❌ 响应内容为空', 'error');
+                                return;
+                            }
+                            
+                            const versionPatterns = [
+                                /@version\s+(\d+\.\d+\.\d+)/i,
+                                /version\s*[=:]\s*['"]?(\d+\.\d+\.\d+)['"]?/i,
+                                /v?(\d+\.\d+\.\d+)/
+                            ];
+                            
+                            let latestVersion = null;
+                            for (const pattern of versionPatterns) {
+                                const match = content.match(pattern);
+                                if (match) {
+                                    latestVersion = match[1];
+                                    break;
+                                }
+                            }
+                            
+                            if (latestVersion) {
                                 if (compareVersions(latestVersion, currentVersion) > 0) {
                                     if (confirm(`发现新版本 v${latestVersion}！\n\n当前版本: v${currentVersion}\n最新版本: v${latestVersion}\n\n是否立即更新？`)) {
                                         window.open(downloadUrl);
                                     }
                                 } else {
-                                    notify('✅ 当前已是最新版本', 'success');
+                                    notify('✅ 当前已是最新版本 v' + currentVersion, 'success');
                                 }
                             } else {
-                                notify('❌ 无法获取版本信息', 'error');
+                                const preview = content.substring(0, 500);
+                                notify('❌ 无法从响应中提取版本号\n\n响应预览（前500字符）:\n' + preview, 'error');
                             }
                         } else {
                             notify('❌ 检查更新失败，状态码: ' + response.status, 'error');
@@ -2012,12 +2035,12 @@
                     onerror: function(error) {
                         checkUpdateBtn.innerHTML = '🔄';
                         checkUpdateBtn.disabled = false;
-                        notify('❌ 网络连接失败: ' + (error?.message || '未知错误'), 'error');
+                        notify('❌ 网络连接失败: ' + (error?.message || error || '未知错误'), 'error');
                     },
                     ontimeout: function() {
                         checkUpdateBtn.innerHTML = '🔄';
                         checkUpdateBtn.disabled = false;
-                        notify('❌ 请求超时', 'error');
+                        notify('❌ 请求超时（15秒），请检查网络连接', 'error');
                     }
                 });
             }
