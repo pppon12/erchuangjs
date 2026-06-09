@@ -1,7 +1,7 @@
     // ==UserScript==
     // @name         二创便捷工具（榕江）
     // @namespace    http://tampermonkey.net/
-    // @version      1.0
+    // @version      1.1
     // @description  打包上传+图片剪辑+格式化信息 多合一 | 支持在线升级
     // @author       卫炜
     // @match        https://www.kdocs.cn/*
@@ -19,8 +19,8 @@
     // @connect      gitee.com
     // @connect      *
     // @run-at       document-start
-    // @updateURL    https://github.com/pppon12/erchuangjs/blob/main/ecbjgj.js
-    // @downloadURL  https://github.com/pppon12/erchuangjs/blob/main/ecbjgj.js
+    // @updateURL    https://raw.githubusercontent.com/pppon12/erchuangjs/main/ecbjgj.js
+    // @downloadURL  https://github.com/pppon12/erchuangjs/raw/main/ecbjgj.js
     // @homepageURL  https://github.com/pppon12/erchuangjs
     // ==/UserScript==
 
@@ -1974,14 +1974,19 @@
             // 检查更新函数
             function checkForUpdates() {
                 const currentVersion = '6.6.7';
-                const updateUrl = 'https://github.com/pppon12/erchuangjs/blob/main/ecbjgj.js';
+                const rawUrl = 'https://raw.githubusercontent.com/pppon12/erchuangjs/main/ecbjgj.js';
+                const downloadUrl = 'https://github.com/pppon12/erchuangjs/raw/main/ecbjgj.js';
                 
                 checkUpdateBtn.innerHTML = '⏳';
                 checkUpdateBtn.disabled = true;
                 
                 GM_xmlhttpRequest({
                     method: 'GET',
-                    url: updateUrl,
+                    url: rawUrl,
+                    timeout: 10000,
+                    headers: {
+                        'Accept': 'text/plain'
+                    },
                     onload: function(response) {
                         checkUpdateBtn.innerHTML = '🔄';
                         checkUpdateBtn.disabled = false;
@@ -1992,7 +1997,7 @@
                                 const latestVersion = match[1];
                                 if (compareVersions(latestVersion, currentVersion) > 0) {
                                     if (confirm(`发现新版本 v${latestVersion}！\n\n当前版本: v${currentVersion}\n最新版本: v${latestVersion}\n\n是否立即更新？`)) {
-                                        window.open(updateUrl);
+                                        window.open(downloadUrl);
                                     }
                                 } else {
                                     notify('✅ 当前已是最新版本', 'success');
@@ -2001,13 +2006,18 @@
                                 notify('❌ 无法获取版本信息', 'error');
                             }
                         } else {
-                            notify('❌ 检查更新失败', 'error');
+                            notify('❌ 检查更新失败，状态码: ' + response.status, 'error');
                         }
                     },
-                    onerror: function() {
+                    onerror: function(error) {
                         checkUpdateBtn.innerHTML = '🔄';
                         checkUpdateBtn.disabled = false;
-                        notify('❌ 网络连接失败', 'error');
+                        notify('❌ 网络连接失败: ' + (error?.message || '未知错误'), 'error');
+                    },
+                    ontimeout: function() {
+                        checkUpdateBtn.innerHTML = '🔄';
+                        checkUpdateBtn.disabled = false;
+                        notify('❌ 请求超时', 'error');
                     }
                 });
             }
