@@ -1,7 +1,7 @@
     // ==UserScript==
     // @name         二创便捷工具（榕江）
     // @namespace    http://tampermonkey.net/
-    // @version      6.6.7
+    // @version      1.0
     // @description  打包上传+图片剪辑+格式化信息 多合一 | 支持在线升级
     // @author       卫炜
     // @match        https://www.kdocs.cn/*
