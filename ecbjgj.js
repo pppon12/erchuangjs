@@ -1,7 +1,7 @@
     // ==UserScript==
     // @name         二创便捷工具（榕江）
     // @namespace    http://tampermonkey.net/
-    // @version      1.0
+    // @version      6.6.8
     // @description  打包上传+图片剪辑+格式化信息 多合一 | 支持在线升级
     // @author       卫炜
     // @match        https://www.kdocs.cn/*
@@ -2018,11 +2018,26 @@
                             
                             if (latestVersion) {
                                 const comparison = compareVersions(latestVersion, currentVersion);
-                                notify(`🔍 版本检测：当前 v${currentVersion}，服务器 v${latestVersion}，比较结果: ${comparison}`, 'info');
                                 
                                 if (comparison > 0) {
-                                    if (confirm(`发现新版本 v${latestVersion}！\n\n当前版本: v${currentVersion}\n最新版本: v${latestVersion}\n\n是否立即更新？`)) {
-                                        window.open(downloadUrl);
+                                    if (confirm(`发现新版本 v${latestVersion}！\n\n当前版本: v${currentVersion}\n最新版本: v${latestVersion}\n\n是否立即自动升级？`)) {
+                                        notify('⏳ 正在下载更新...', 'info');
+                                        GM_download({
+                                            url: downloadUrl,
+                                            name: 'easylink-full-auto.user.js',
+                                            onload: function() {
+                                                notify('✅ 下载完成！请在 Tampermonkey 中重新安装脚本', 'success');
+                                                setTimeout(() => {
+                                                    if (confirm('是否立即打开脚本文件进行安装？')) {
+                                                        window.open(downloadUrl);
+                                                    }
+                                                }, 1000);
+                                            },
+                                            onerror: function(error) {
+                                                notify('❌ 下载失败，请手动打开更新链接', 'error');
+                                                window.open(downloadUrl);
+                                            }
+                                        });
                                     }
                                 } else if (comparison === 0) {
                                     notify('✅ 当前已是最新版本 v' + currentVersion, 'success');
