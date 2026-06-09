@@ -19,9 +19,9 @@
     // @connect      gitee.com
     // @connect      *
     // @run-at       document-start
-    // @updateURL    https://raw.githubusercontent.com/yourusername/yourrepo/main/easylink-full-auto.user.js
-    // @downloadURL  https://raw.githubusercontent.com/yourusername/yourrepo/main/easylink-full-auto.user.js
-    // @homepageURL  https://github.com/yourusername/yourrepo
+    // @updateURL    https://github.com/pppon12/erchuangjs/blob/main/ecbjgj.js
+    // @downloadURL  https://github.com/pppon12/erchuangjs/blob/main/ecbjgj.js
+    // @homepageURL  https://github.com/pppon12/erchuangjs
     // ==/UserScript==
 
     (function() {
@@ -1974,7 +1974,7 @@
             // 检查更新函数
             function checkForUpdates() {
                 const currentVersion = '6.6.7';
-                const updateUrl = 'https://raw.githubusercontent.com/yourusername/yourrepo/main/easylink-full-auto.user.js';
+                const updateUrl = 'https://github.com/pppon12/erchuangjs/blob/main/ecbjgj.js';
                 
                 checkUpdateBtn.innerHTML = '⏳';
                 checkUpdateBtn.disabled = true;
